@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Form para MRP Consolidation -->
+    <record id="view_mrp_consolidation_form" model="ir.ui.view">
+        <field name="name">mrp.consolidation.form</field>
+        <field name="model">mrp.consolidation</field>
+        <field name="arch" type="xml">
+            <form string="Consolidación de Órdenes de Producción">
+                <header>
+                    <button name="calculate_consolidation" string="Calcular Consolidación" 
+                            type="object" class="btn-primary" 
+                            invisible="state != 'draft'"/>
+                    <button name="confirm_consolidation" string="Confirmar" 
+                            type="object" class="btn-primary" 
+                            invisible="state != 'calculated'"/>
+                    <button name="create_purchase_suggestion" string="Sugerir Compras" 
+                            type="object" class="btn-secondary" 
+                            invisible="state != 'calculated'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre de la Consolidación"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="total_products"/>
+                            <field name="total_components"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Órdenes de Producción">
+                            <field name="production_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="product_qty"/>
+                                    <field name="state"/>
+                                    <field name="date_start"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Materiales Consolidados">
+                            <field name="consolidation_line_ids">
+                                <list decoration-danger="qty_missing > 0" 
+                                      decoration-success="qty_missing == 0">
+                                    <field name="product_id"/>
+                                    <field name="category_id"/>
+                                    <field name="qty_needed"/>
+                                    <field name="qty_available"/>
+                                    <field name="qty_missing"/>
+                                    <field name="supplier_id"/>
+                                    <field name="uom_id"/>
+                            </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Tree para MRP Consolidation -->
+    <record id="view_mrp_consolidation_tree" model="ir.ui.view">
+        <field name="name">mrp.consolidation.tree</field>
+        <field name="model">mrp.consolidation</field>
+        <field name="arch" type="xml">
+            <list string="Consolidaciones de Producción">
+                <field name="name"/>
+                <field name="total_products"/>
+                <field name="total_components"/>
+                <field name="state"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Kanban para MRP Consolidation -->
+    <record id="view_mrp_consolidation_kanban" model="ir.ui.view">
+        <field name="name">mrp.consolidation.kanban</field>
+        <field name="model">mrp.consolidation</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="total_products"/>
+                <field name="total_components"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card">
+                            <div class="oe_kanban_content">
+                                <div class="oe_kanban_title">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <ul>
+                                        <li><strong>Productos:</strong> <field name="total_products"/></li>
+                                        <li><strong>Componentes:</strong> <field name="total_components"/></li>
+                                        <li><strong>Estado:</strong> <field name="state"/></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Acción para MRP Consolidation -->
+    <record id="action_mrp_consolidation" model="ir.actions.act_window">
+        <field name="name">Consolidaciones de Producción</field>
+        <field name="res_model">mrp.consolidation</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                ¡Crea tu primera consolidación de órdenes de producción!
+            </p>
+            <p>
+                Agrupa múltiples órdenes de producción para obtener una vista 
+                consolidada de todos los materiales que necesitas.
+            </p>
+        </field>
+    </record>
+
+    <!-- Extensión de la vista de Órdenes de Producción -->
+    <record id="view_mrp_production_form_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <button name="action_assign" position="after">
+                <button name="action_consolidate_productions" string="Consolidar" 
+                        type="object" class="btn-secondary"/>
+            </button>
+        </field>
+    </record>
+
+    <!-- Acción para consolidar desde lista de órdenes -->
+    <record id="action_consolidate_selected_productions" model="ir.actions.server">
+        <field name="name">Consolidar Órdenes Seleccionadas</field>
+        <field name="model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_consolidate_productions()
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_mrp_consolidation_root" 
+              name="Consolidaciones" 
+              parent="mrp.menu_mrp_manufacturing"
+              sequence="15"/>
+              
+    <menuitem id="menu_mrp_consolidation" 
+              name="Consolidaciones de Producción"
+              parent="menu_mrp_consolidation_root"
+              action="action_mrp_consolidation"
+              sequence="10"/>
+
+    <!-- Reporte de Materiales Consolidados -->
+    <record id="view_consolidated_materials_report" model="ir.ui.view">
+        <field name="name">consolidated.materials.report</field>
+        <field name="model">mrp.consolidation.line</field>
+        <field name="arch" type="xml">
+            <list string="Reporte de Materiales Consolidados" create="false" edit="false">
+                <field name="category_id"/>
+                <field name="product_id"/>
+                <field name="qty_needed"/>
+                <field name="qty_available"/>
+                <field name="qty_missing"/>
+                <field name="supplier_id"/>
+                <field name="uom_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_consolidated_materials_report" model="ir.actions.act_window">
+        <field name="name">Reporte de Materiales</field>
+        <field name="res_model">mrp.consolidation.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_consolidated_materials_report"/>
+        <field name="domain">[('consolidation_id.state', '!=', 'draft')]</field>
+        <field name="context">{'group_by': 'category_id'}</field>
+    </record>
+
+    <menuitem id="menu_consolidated_materials_report"
+              name="Reporte de Materiales"
+              parent="menu_mrp_consolidation_root"
+              action="action_consolidated_materials_report"
+              sequence="20"/>
+
+</odoo>

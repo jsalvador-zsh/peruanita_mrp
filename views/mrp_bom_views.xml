@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario extendida para BOM -->
+    <record id="mrp_bom_form_view_inherit" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit.peruanita</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <field name="type" position="after">
+                <field name="waste_percentage" 
+                       string="% Merma"
+                       help="Porcentaje de merma que se aplicará a todos los componentes"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista lista de BOM con porcentaje de merma -->
+    <record id="mrp_bom_tree_view_inherit" model="ir.ui.view">
+        <field name="name">mrp.bom.tree.inherit.peruanita</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="product_qty" position="after">
+                <field name="waste_percentage" 
+                       string="% Merma"
+                       optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda extendida para BOM -->
+    <record id="view_mrp_bom_filter_inherit" model="ir.ui.view">
+        <field name="name">mrp.bom.filter.inherit.peruanita</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.view_mrp_bom_filter"/>
+        <field name="arch" type="xml">
+            <field name="product_tmpl_id" position="after">
+                <field name="waste_percentage" string="% Merma"/>
+            </field>
+            <filter name="inactive" position="before">
+                <filter string="Con Merma" name="with_waste" 
+                        domain="[('waste_percentage', '>', 0)]"/>
+                <filter string="Sin Merma" name="without_waste" 
+                        domain="[('waste_percentage', '=', 0)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <!-- Vista personalizada para líneas de BOM con merma -->
+    <record id="mrp_bom_line_tree_view_with_waste" model="ir.ui.view">
+        <field name="name">mrp.bom.line.tree.with.waste</field>
+        <field name="model">mrp.bom.line</field>
+        <field name="arch" type="xml">
+            <list string="Componentes" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="product_id" context="{'default_detailed_type': 'product'}"/>
+                <field name="product_tmpl_id" column_invisible="True"/>
+                <field name="company_id" column_invisible="True"/>
+                <field name="child_bom_id" column_invisible="not context.get('show_child_bom', False)"/>
+                <field name="child_line_ids" column_invisible="True"/>
+                <field name="product_qty"/>
+                <field name="waste_qty" string="Cant. Merma" readonly="1" optional="show"/>
+                <field name="total_qty_with_waste" string="Total + Merma" readonly="1" optional="show"/>
+                <field name="product_uom_id" groups="uom.group_uom"/>
+                <field name="possible_bom_product_template_attribute_value_ids" column_invisible="True"/>
+                <field name="bom_product_template_attribute_value_ids" widget="many2many_tags" groups="product.group_product_variant"/>
+                <field name="operation_id" groups="mrp.group_mrp_routings"/>
+                <field name="manual_consumption" groups="stock.group_stock_multi_locations"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Herencia del formulario BOM para usar nuestra vista personalizada -->
+    <record id="mrp_bom_form_view_inherit_lines" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit.lines.peruanita</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <field name="bom_line_ids" position="attributes">
+                <attribute name="context">{'tree_view_ref': 'peruanita_mrp.mrp_bom_line_tree_view_with_waste'}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario extendida para órdenes de fabricación -->
+    <record id="mrp_production_form_view_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit.peruanita</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="has_sale_order" invisible="1"/>
+                <field name="sale_partner_id" 
+                       string="Cliente" 
+                       readonly="1"
+                       invisible ="has_sale_order == False"
+                       options="{'no_create': True, 'no_create_edit': True}"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista lista extendida para órdenes de fabricación -->
+    <record id="mrp_production_tree_view_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.tree.inherit.peruanita</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="sale_partner_id" string="Cliente" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda extendida -->
+    <record id="view_mrp_production_filter_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.filter.inherit.peruanita</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="sale_partner_id" string="Cliente"/>
+            </field>
+            <filter name="product" position="after">
+                <filter string="Cliente" name="group_by_partner" 
+                        domain="[]" 
+                        context="{'group_by':'sale_partner_id'}"/>
+            </filter>
+        </field>
+    </record>
+</odoo>

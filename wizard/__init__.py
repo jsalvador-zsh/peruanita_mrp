@@ -1,0 +1,1 @@
+from . import mrp_consolidation_wizard
