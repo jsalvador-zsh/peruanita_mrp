@@ -3,8 +3,6 @@ from odoo import models, fields, api
 
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
-    
-    consolidation_ids = fields.Many2many('mrp.consolidation', string='Consolidaciones')
 
     sale_partner_id = fields.Many2one(
         'res.partner',
@@ -77,23 +75,4 @@ class MrpProduction(models.Model):
             'res_id': sale_order.id,
             'view_mode': 'form',
             'target': 'current',
-        }
-    
-    def action_consolidate_productions(self):
-        """Acción para consolidar órdenes de producción seleccionadas"""
-        if not self:
-            return
-            
-        # Crear wizard para consolidación
-        wizard = self.env['mrp.consolidation.wizard'].create({
-            'production_ids': [(6, 0, self.ids)]
-        })
-        
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Consolidar Órdenes de Producción',
-            'res_model': 'mrp.consolidation.wizard',
-            'res_id': wizard.id,
-            'view_mode': 'form',
-            'target': 'new',
         }

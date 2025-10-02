@@ -16,17 +16,11 @@
     'website': 'https://jsalvador.dev',
     'depends': [
         'mrp',
-        'sale_mrp',
-        'stock',
-        'purchase'
+        'sale_mrp'
     ],
     'data': [
-        'security/ir.model.access.csv',
         'views/mrp_production_views.xml',
         'views/mrp_bom_views.xml',
-        'views/mrp_consolidation_views.xml',
-        'wizard/mrp_consolidation_wizard_views.xml',
-        'reports/consolidated_materials_report.xml',
     ],
     'installable': True,
     'application': False,
