@@ -19,8 +19,10 @@
         'sale_mrp'
     ],
     'data': [
+        'security/ir.model.access.csv',
         'views/mrp_production_views.xml',
         'views/mrp_bom_views.xml',
+        'views/mrp_production_batch_wizard_views.xml',
     ],
     'installable': True,
     'application': False,
