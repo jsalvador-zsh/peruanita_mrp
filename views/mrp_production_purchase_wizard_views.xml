@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista formulario del asistente de consolidación para compras -->
+    <record id="mrp_production_purchase_wizard_form" model="ir.ui.view">
+        <field name="name">mrp.production.purchase.wizard.form</field>
+        <field name="model">mrp.production.purchase.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Consolidar Componentes para Solicitud de Compra">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <span>Consolidar Componentes de Producción</span>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="total_products" readonly="1"/>
+                            <field name="total_quantity" readonly="1"/>
+                        </group>
+                        <group>
+                            <label for="margin_percentage" string="Margen de Stock"/>
+                            <div class="o_row">
+                                <field name="margin_percentage" class="oe_inline"/>
+                                <span class="oe_inline">%</span>
+                            </div>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Componentes Consolidados" name="components">
+                            <field name="line_ids" mode="list">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="product_id" readonly="1"/>
+                                    <field name="default_code" readonly="1" optional="show"/>
+                                    <field name="quantity_required" readonly="1" sum="Total Requerido"/>
+                                    <field name="quantity_with_margin" sum="Total con Margen"/>
+                                    <field name="product_uom_id" readonly="1"/>
+                                    <field name="production_count" readonly="1"/>
+                                    <field name="notes" optional="hide"/>
+                                    <button name="action_view_productions" 
+                                            type="object" 
+                                            icon="fa-external-link" 
+                                            title="Ver Órdenes de Producción"
+                                            invisible="production_count == 0"/>
+                                </list>
+                            </field>
+                            <div class="alert alert-info" role="alert">
+                                <p><strong>Instrucciones:</strong></p>
+                                <ul>
+                                    <li>Puede editar las cantidades con margen según sus necesidades</li>
+                                    <li>El campo "% Margen de Stock" aplica automáticamente un porcentaje adicional</li>
+                                    <li>Las cantidades se consolidan de todas las órdenes de fabricación seleccionadas</li>
+                                </ul>
+                            </div>
+                        </page>
+                        
+                        <page string="Órdenes de Fabricación" name="productions">
+                            <field name="production_ids" mode="list" readonly="1">
+                                <list create="false" delete="false">
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="product_qty"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="state" 
+                                           decoration-info="state in ('draft', 'confirmed')"
+                                           decoration-success="state == 'done'"
+                                           decoration-warning="state == 'progress'"
+                                           widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Notas" name="notes">
+                            <group>
+                                <field name="notes" nolabel="1" placeholder="Agregue notas adicionales para la solicitud de compra..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_create_purchase_request" 
+                            string="Crear Solicitud de Compra" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button name="action_cancel" 
+                            string="Cancelar" 
+                            type="object" 
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del asistente -->
+    <record id="action_mrp_production_purchase_wizard" model="ir.actions.act_window">
+        <field name="name">Consolidar para Solicitud de Compra</field>
+        <field name="res_model">mrp.production.purchase.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>

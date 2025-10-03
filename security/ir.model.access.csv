@@ -1,3 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_mrp_production_batch_wizard_user,mrp.production.batch.wizard.user,model_mrp_production_batch_wizard,mrp.group_mrp_user,1,1,1,1
 access_mrp_production_batch_wizard_manager,mrp.production.batch.wizard.manager,model_mrp_production_batch_wizard,mrp.group_mrp_manager,1,1,1,1
+access_mrp_production_purchase_wizard_user,mrp.production.purchase.wizard.user,model_mrp_production_purchase_wizard,mrp.group_mrp_user,1,1,1,1
+access_mrp_production_purchase_wizard_manager,mrp.production.purchase.wizard.manager,model_mrp_production_purchase_wizard,mrp.group_mrp_manager,1,1,1,1
+access_mrp_production_purchase_wizard_line_user,mrp.production.purchase.wizard.line.user,model_mrp_production_purchase_wizard_line,mrp.group_mrp_user,1,1,1,1
+access_mrp_production_purchase_wizard_line_manager,mrp.production.purchase.wizard.line.manager,model_mrp_production_purchase_wizard_line,mrp.group_mrp_manager,1,1,1,1
