@@ -9,7 +9,7 @@ class MrpProduction(models.Model):
         string='Cliente',
         compute='_compute_sale_partner_id',
         store=True,
-        readonly=True,
+        readonly=False,
         help="Cliente de la orden de venta relacionada con esta orden de fabricación"
     )
     
@@ -18,10 +18,15 @@ class MrpProduction(models.Model):
         string='Distribuidor',
         compute='_compute_sale_distributor_id',
         store=True,
-        readonly=True,
+        readonly=False,
         help="Distribuidor de la orden de venta relacionada con esta orden de fabricación"
     )
-    
+    categ_id = fields.Many2one(
+        related='product_id.categ_id', 
+        string='Categoría de Producto', 
+        store=True, 
+        readonly=True)
+
     has_sale_order = fields.Boolean(
         string='Tiene Orden de Venta',
         compute='_compute_has_sale_order',

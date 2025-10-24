@@ -1,0 +1,10 @@
+.column-medium {
+    width: 250px !important;
+    max-width: 250px !important;
+
+}
+.column-large {
+    width: 500px !important;
+    max-width: 500px !important;
+
+}

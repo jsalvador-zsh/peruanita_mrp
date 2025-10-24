@@ -9,14 +9,10 @@
             <field name="product_id" position="after">
                 <field name="has_sale_order" invisible="1"/>
                 <field name="sale_partner_id" 
-                       string="Cliente" 
-                       readonly="1"
-                       invisible="has_sale_order == False"
+                       string="Cliente"
                        options="{'no_create': True, 'no_create_edit': True}"/>
                 <field name="sale_distributor_id" 
                        string="Distribuidor" 
-                       readonly="1"
-                       invisible="has_sale_order == False"
                        options="{'no_create': True, 'no_create_edit': True}"/>
             </field>
             
@@ -53,10 +49,13 @@
         <field name="model">mrp.production</field>
         <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
         <field name="arch" type="xml">
-            <field name="product_id" position="after">
-                <field name="sale_partner_id" string="Cliente" optional="hide"/>
-                <field name="sale_distributor_id" string="Distribuidor" optional="hide"/>
+            <field name="product_id" position="before">
+                <field name="sale_partner_id" string="Cliente" class="column-large"/>
+                <field name="sale_distributor_id" string="Distribuidor" class="column-medium"/>
                 <field name="batch_id" string="Batch" optional="hide"/>
+            </field>
+            <field name="product_id" position="before">
+                <field name="categ_id" string="Categoría" />
             </field>
         </field>
     </record>
@@ -73,6 +72,9 @@
                 <field name="batch_id" string="Batch"/>
             </field>
             <filter name="product" position="after">
+                <filter string="Categoría" name="group_by_category"
+                        domain="[]"
+                        context="{'group_by':'categ_id'}"/>
                 <filter string="Cliente" name="group_by_partner" 
                         domain="[]" 
                         context="{'group_by':'sale_partner_id'}"/>
@@ -92,4 +94,16 @@
             </filter>
         </field>
     </record>
+    <record id="action_server_confirm_productions" model="ir.actions.server">
+    <field name="name">Confirmar Órdenes de Producción</field>
+    <field name="model_id" ref="mrp.model_mrp_production"/>
+    <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+    <field name="binding_view_types">list</field>
+    <field name="state">code</field>
+    <field name="code">
+for record in records:
+    if record.state == 'draft':
+        record.action_confirm()
+    </field>
+</record>
 </odoo>

@@ -29,6 +29,11 @@
         'views/mrp_production_batch_wizard_views.xml',
         'views/mrp_production_purchase_wizard_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'peruanita_mrp/static/src/css/styles.css',
+        ]
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
