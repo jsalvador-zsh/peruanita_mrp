@@ -4,41 +4,35 @@
     <record id="mrp_production_form_view_inherit" model="ir.ui.view">
         <field name="name">mrp.production.form.inherit.peruanita</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view" />
         <field name="arch" type="xml">
             <field name="product_id" position="after">
-                <field name="has_sale_order" invisible="1"/>
-                <field name="sale_partner_id" 
-                       string="Cliente"
-                       options="{'no_create': True, 'no_create_edit': True}"/>
-                <field name="sale_distributor_id" 
-                       string="Distribuidor" 
-                       options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="has_sale_order" invisible="1" />
+                <field name="sale_partner_id"
+                    string="Cliente"
+                    options="{'no_create': True, 'no_create_edit': True}" />
+                <field name="sale_distributor_id"
+                    string="Distribuidor"
+                    options="{'no_create': True, 'no_create_edit': True}" />
             </field>
-            
+
             <!-- Añadir botones inteligentes en el header -->
             <div name="button_box" position="inside">
-                <!-- <button name="action_view_raw_material_pickings" 
-                        type="object" 
-                        class="oe_stat_button" 
-                        icon="fa-truck"
-                        invisible="raw_material_picking_count == 0">
-                    <field name="raw_material_picking_count" widget="statinfo" string="Traslados MP"/>
-                </button> -->
-                <button name="action_view_batch" 
-                        type="object" 
-                        class="oe_stat_button" 
-                        icon="fa-cubes"
-                        invisible="not batch_id">
+                <button name="action_view_batch"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-cubes"
+                    invisible="not batch_id">
                     <div class="o_stat_info">
                         <span class="o_stat_text"> Batch</span>
                     </div>
                 </button>
             </div>
-            
+
             <!-- Añadir campo de batch en el formulario -->
             <field name="user_id" position="after">
-                <field name="batch_id" readonly="1" options="{'no_create': True}"/>
+                <field name="batch_id" string="Lote de traslado" readonly="1" options="{'no_create': True}" />
+                <field name="sale_order_id" />
             </field>
         </field>
     </record>
@@ -47,12 +41,12 @@
     <record id="mrp_production_tree_view_inherit" model="ir.ui.view">
         <field name="name">mrp.production.tree.inherit.peruanita</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
         <field name="arch" type="xml">
             <field name="product_id" position="before">
-                <field name="sale_partner_id" string="Cliente" class="column-large"/>
-                <field name="sale_distributor_id" string="Distribuidor" class="column-medium"/>
-                <field name="batch_id" string="Batch" optional="hide"/>
+                <field name="sale_partner_id" string="Cliente" class="column-large" />
+                <field name="sale_distributor_id" string="Distribuidor" class="column-medium" />
+                <field name="batch_id" string="Batch" optional="hide" />
             </field>
             <field name="product_id" position="before">
                 <field name="categ_id" string="Categoría" />
@@ -64,46 +58,46 @@
     <record id="view_mrp_production_filter_inherit" model="ir.ui.view">
         <field name="name">mrp.production.filter.inherit.peruanita</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter" />
         <field name="arch" type="xml">
             <field name="product_id" position="after">
-                <field name="sale_partner_id" string="Cliente"/>
-                <field name="sale_distributor_id" string="Distribuidor"/>
-                <field name="batch_id" string="Batch"/>
+                <field name="sale_partner_id" string="Cliente" />
+                <field name="sale_distributor_id" string="Distribuidor" />
+                <field name="batch_id" string="Batch" />
             </field>
             <filter name="product" position="after">
                 <filter string="Categoría" name="group_by_category"
-                        domain="[]"
-                        context="{'group_by':'categ_id'}"/>
-                <filter string="Cliente" name="group_by_partner" 
-                        domain="[]" 
-                        context="{'group_by':'sale_partner_id'}"/>
-                <filter string="Distribuidor" name="group_by_distributor" 
-                        domain="[]" 
-                        context="{'group_by':'sale_distributor_id'}"/>
-                <filter string="Batch" name="group_by_batch" 
-                        domain="[]" 
-                        context="{'group_by':'batch_id'}"/>
+                    domain="[]"
+                    context="{'group_by':'categ_id'}" />
+                <filter string="Cliente" name="group_by_partner"
+                    domain="[]"
+                    context="{'group_by':'sale_partner_id'}" />
+                <filter string="Distribuidor" name="group_by_distributor"
+                    domain="[]"
+                    context="{'group_by':'sale_distributor_id'}" />
+                <filter string="Batch" name="group_by_batch"
+                    domain="[]"
+                    context="{'group_by':'batch_id'}" />
             </filter>
             <filter name="todo" position="after">
-                <separator/>
-                <filter string="Sin Batch" name="without_batch" 
-                        domain="[('batch_id', '=', False)]"/>
-                <filter string="Con Batch" name="with_batch" 
-                        domain="[('batch_id', '!=', False)]"/>
+                <separator />
+                <filter string="Sin Batch" name="without_batch"
+                    domain="[('batch_id', '=', False)]" />
+                <filter string="Con Batch" name="with_batch"
+                    domain="[('batch_id', '!=', False)]" />
             </filter>
         </field>
     </record>
     <record id="action_server_confirm_productions" model="ir.actions.server">
-    <field name="name">Confirmar Órdenes de Producción</field>
-    <field name="model_id" ref="mrp.model_mrp_production"/>
-    <field name="binding_model_id" ref="mrp.model_mrp_production"/>
-    <field name="binding_view_types">list</field>
-    <field name="state">code</field>
-    <field name="code">
-for record in records:
-    if record.state == 'draft':
-        record.action_confirm()
-    </field>
-</record>
+        <field name="name">Confirmar Órdenes de Producción</field>
+        <field name="model_id" ref="mrp.model_mrp_production" />
+        <field name="binding_model_id" ref="mrp.model_mrp_production" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            for record in records:
+                if record.state == 'draft':
+                    record.action_confirm()
+        </field>
+    </record>
 </odoo>
