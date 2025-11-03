@@ -159,7 +159,7 @@ class MrpProductionBatchWizard(models.TransientModel):
         
         if productions_to_update:
             productions_to_update.write({'batch_id': batch.id})
-        
+
         # Retornar la acción para abrir el batch creado
         return {
             'type': 'ir.actions.act_window',

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Tree (Lista) -->
+    <record id="view_product_lot_quality_tree" model="ir.ui.view">
+        <field name="name">product.lot.quality.tree</field>
+        <field name="model">product.lot.quality</field>
+        <field name="arch" type="xml">
+            <list string="Certificados de Calidad de Lotes"
+                  decoration-danger="state == 'expired'"
+                  decoration-warning="state == 'warning'"
+                  decoration-success="state == 'valid'">
+                <field name="lot_id" string="Lote"/>
+                <field name="product_id" class="column-large"/>
+                <field name="certificate_number" optional="show"/>
+                <field name="certificate_issue_date"/>
+                <field name="certificate_expiry_date"/>
+                <field name="days_to_expire" widget="badge" decoration-danger="state == 'expired'" decoration-warning="state == 'warning'" decoration-success="state == 'valid'"/>
+                <field name="state" widget="badge" decoration-danger="state == 'expired'" decoration-warning="state == 'warning'" decoration-success="state == 'valid'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form (Formulario) -->
+    <record id="view_product_lot_quality_form" model="ir.ui.view">
+        <field name="name">product.lot.quality.form</field>
+        <field name="model">product.lot.quality</field>
+        <field name="arch" type="xml">
+            <form string="Certificado de Calidad de Lote">
+                <header>
+                    <button name="action_renew_certificate"
+                            string="Renovar Certificado"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'expired'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="valid,warning,expired"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Vencido" bg_color="text-bg-danger" invisible="state != 'expired'"/>
+                    <widget name="web_ribbon" title="Por Vencer" bg_color="text-bg-warning" invisible="state != 'warning'"/>
+                    <widget name="web_ribbon" title="Vigente" bg_color="text-bg-success" invisible="state != 'valid'"/>
+
+                    <group>
+                        <group name="main_info" string="Información Principal">
+                            <field name="product_id" options="{'no_create': True}"/>
+                            <field name="lot_id"
+                                   context="{'default_product_id': product_id, 'default_company_id': company_id}"
+                                   options="{'no_open': True}"
+                                   placeholder="Seleccione primero el producto"/>
+                            <field name="certificate_number" placeholder="Ej: CERT-QA-2024-001"/>
+                            <field name="active" invisible="1" options='{"terminology": "archive"}'/>
+                        </group>
+                        <group name="dates_info" string="Fechas del Certificado">
+                            <field name="certificate_issue_date"/>
+                            <field name="certificate_expiry_date"/>
+                            <field name="days_to_expire" widget="statinfo"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+
+                    <group name="notes" string="Observaciones">
+                        <field name="notes" nolabel="1" placeholder="Ingrese observaciones adicionales sobre este certificado de calidad..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search (Búsqueda y Filtros) -->
+    <record id="view_product_lot_quality_search" model="ir.ui.view">
+        <field name="name">product.lot.quality.search</field>
+        <field name="model">product.lot.quality</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Certificados de Calidad">
+                <field name="lot_id" string="Lote" filter_domain="[('lot_id', 'ilike', self)]"/>
+                <field name="product_id" string="Producto"/>
+                <field name="certificate_number" string="Número de Certificado"/>
+
+                <separator/>
+
+                <filter string="Vigentes" name="filter_valid" domain="[('state', '=', 'valid')]"/>
+                <filter string="Por Vencer" name="filter_warning" domain="[('state', '=', 'warning')]"/>
+                <filter string="Vencidos" name="filter_expired" domain="[('state', '=', 'expired')]"/>
+
+                <separator/>
+
+                <filter string="Vencen este Mes" name="filter_expire_this_month"
+                        domain="[('certificate_expiry_date', '&gt;=', (context_today()).strftime('%Y-%m-01')),
+                                 ('certificate_expiry_date', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Vencen en 30 días" name="filter_expire_30_days"
+                        domain="[('certificate_expiry_date', '&gt;=', context_today().strftime('%Y-%m-%d')),
+                                 ('certificate_expiry_date', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+
+                <separator/>
+
+                <filter string="Archivados" name="inactive" domain="[('active', '=', False)]"/>
+
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Producto" name="group_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Mes de Vencimiento" name="group_expiry_month" context="{'group_by': 'certificate_expiry_date:month'}"/>
+                    <filter string="Compañía" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban -->
+    <record id="view_product_lot_quality_kanban" model="ir.ui.view">
+        <field name="name">product.lot.quality.kanban</field>
+        <field name="model">product.lot.quality</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="lot_id"/>
+                <field name="product_id"/>
+                <field name="certificate_expiry_date"/>
+                <field name="days_to_expire"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="lot_id"/>
+                                    </strong>
+                                </div>
+                                <span t-attf-class="badge rounded-pill #{record.state.raw_value === 'expired' ? 'text-bg-danger' : record.state.raw_value === 'warning' ? 'text-bg-warning' : 'text-bg-success'}">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="product_id"/>
+                                <div>
+                                    Vence: <field name="certificate_expiry_date"/>
+                                </div>
+                                <div t-if="record.days_to_expire.raw_value &lt; 0">
+                                    <span class="text-danger">Vencido hace <t t-esc="Math.abs(record.days_to_expire.raw_value)"/> días</span>
+                                </div>
+                                <div t-elif="record.days_to_expire.raw_value &lt;= 30">
+                                    <span class="text-warning">Vence en <t t-esc="record.days_to_expire.raw_value"/> días</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Acción de ventana -->
+    <record id="action_product_lot_quality" model="ir.actions.act_window">
+        <field name="name">Certificados de Calidad de Lotes</field>
+        <field name="res_model">product.lot.quality</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_product_lot_quality_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear el primer certificado de calidad de lote
+            </p>
+            <p>
+                Los certificados de calidad de lotes permiten gestionar la vigencia de los
+                certificados asociados a los productos de manufactura. El sistema alertará
+                automáticamente a los administradores cuando un certificado esté por vencer.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menú en Manufacturing -->
+    <menuitem id="menu_product_lot_quality_root"
+              name="Certificados de Calidad"
+              parent="mrp.menu_mrp_root"
+              sequence="20"/>
+
+    <menuitem id="menu_product_lot_quality"
+              name="Certificados de Lotes"
+              parent="menu_product_lot_quality_root"
+              action="action_product_lot_quality"
+              sequence="10"/>
+
+    <!-- Vista de actividades pendientes -->
+    <record id="action_product_lot_quality_activities" model="ir.actions.act_window">
+        <field name="name">Certificados con Actividades Pendientes</field>
+        <field name="res_model">product.lot.quality</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('activity_ids', '!=', False)]</field>
+        <field name="context">{'search_default_filter_warning': 1, 'search_default_filter_expired': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay certificados con actividades pendientes
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_product_lot_quality_activities"
+              name="Alertas de Vencimiento"
+              parent="menu_product_lot_quality_root"
+              action="action_product_lot_quality_activities"
+              sequence="20"/>
+
+</odoo>

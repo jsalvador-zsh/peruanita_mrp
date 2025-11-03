@@ -20,7 +20,7 @@ class MrpProduction(models.Model):
         readonly=True,
         help="Cliente de la orden de venta relacionada"
     )
-    
+
     sale_distributor_id = fields.Many2one(
         'res.partner',
         string='Distribuidor',
@@ -28,6 +28,24 @@ class MrpProduction(models.Model):
         store=True,
         readonly=True,
         help="Distribuidor de la orden de venta relacionada"
+    )
+
+    consolidated_partner_ids = fields.Many2many(
+        'res.partner',
+        'mrp_production_partner_rel',
+        'production_id',
+        'partner_id',
+        string='Clientes Consolidados',
+        help="Clientes de las órdenes de fabricación que fueron fusionadas/consolidadas"
+    )
+
+    consolidated_distributor_ids = fields.Many2many(
+        'res.partner',
+        'mrp_production_distributor_rel',
+        'production_id',
+        'distributor_id',
+        string='Distribuidores Consolidados',
+        help="Distribuidores de las órdenes de fabricación que fueron fusionadas/consolidadas"
     )
     categ_id = fields.Many2one(
         related='product_id.categ_id', 
@@ -155,3 +173,47 @@ class MrpProduction(models.Model):
             'target': 'new',
             'context': self.env.context,
         }
+
+    def action_merge(self):
+        """
+        Sobrescribe el método estándar de fusión para consolidar los partners
+        """
+        # Recopilar todos los partners y distribuidores antes de la fusión
+        all_partners = self.env['res.partner']
+        all_distributors = self.env['res.partner']
+
+        for production in self:
+            # Agregar el partner actual si existe
+            if production.sale_partner_id:
+                all_partners |= production.sale_partner_id
+
+            # Agregar el distribuidor actual si existe
+            if production.sale_distributor_id:
+                all_distributors |= production.sale_distributor_id
+
+            # Agregar partners ya consolidados previamente
+            if production.consolidated_partner_ids:
+                all_partners |= production.consolidated_partner_ids
+
+            # Agregar distribuidores ya consolidados previamente
+            if production.consolidated_distributor_ids:
+                all_distributors |= production.consolidated_distributor_ids
+
+        # Llamar al método padre para hacer la fusión estándar
+        result = super(MrpProduction, self).action_merge()
+
+        # Obtener la nueva orden de fabricación creada por la fusión
+        if result and result.get('res_id'):
+            new_production = self.env['mrp.production'].browse(result['res_id'])
+
+            # Asignar los partners consolidados a la nueva orden
+            vals = {}
+            if all_partners:
+                vals['consolidated_partner_ids'] = [(6, 0, all_partners.ids)]
+            if all_distributors:
+                vals['consolidated_distributor_ids'] = [(6, 0, all_distributors.ids)]
+
+            if vals:
+                new_production.write(vals)
+
+        return result

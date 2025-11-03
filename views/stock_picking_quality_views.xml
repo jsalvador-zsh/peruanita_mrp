@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Form de Control de Calidad -->
+    <record id="view_stock_picking_quality_inspection_form" model="ir.ui.view">
+        <field name="name">stock.picking.quality.inspection.form</field>
+        <field name="model">stock.picking.quality.inspection</field>
+        <field name="arch" type="xml">
+            <form string="Control de Calidad">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="approved,rejected"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Aprobado" bg_color="text-bg-success" invisible="state != 'approved'"/>
+                    <widget name="web_ribbon" title="Desaprobado" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="main_info" string="Información del Control">
+                            <field name="picking_id" options="{'no_create': True}"/>
+                            <field name="partner_id"/>
+                            <field name="inspector_id" string="Responsable" options="{'no_create': True}"/>
+                            <field name="inspection_date" string="Fecha del Control"/>
+                        </group>
+                        <group name="status_info" string="Estado">
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'approved'"
+                                   decoration-danger="state == 'rejected'"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+
+                    <group name="findings_group" string="Hallazgos del Control de Calidad">
+                        <field name="findings" nolabel="1" placeholder="Describa detalladamente lo encontrado durante el control de calidad..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Tree de Control de Calidad -->
+    <record id="view_stock_picking_quality_inspection_tree" model="ir.ui.view">
+        <field name="name">stock.picking.quality.inspection.tree</field>
+        <field name="model">stock.picking.quality.inspection</field>
+        <field name="arch" type="xml">
+            <list string="Controles de Calidad"
+                  decoration-success="state == 'approved'"
+                  decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="picking_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="inspector_id" string="Responsable"/>
+                <field name="inspection_date" string="Fecha del Control"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Search de Control de Calidad -->
+    <record id="view_stock_picking_quality_inspection_search" model="ir.ui.view">
+        <field name="name">stock.picking.quality.inspection.search</field>
+        <field name="model">stock.picking.quality.inspection</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Controles de Calidad">
+                <field name="name" string="Número de Control"/>
+                <field name="picking_id" string="Recepción"/>
+                <field name="partner_id" string="Proveedor"/>
+                <field name="inspector_id" string="Responsable"/>
+
+                <separator/>
+
+                <filter string="Aprobados" name="filter_approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Desaprobados" name="filter_rejected" domain="[('state', '=', 'rejected')]"/>
+
+                <separator/>
+
+                <filter string="Mis Controles" name="my_inspections" domain="[('inspector_id', '=', uid)]"/>
+                <filter string="Controles del Mes" name="this_month"
+                        domain="[('inspection_date', '&gt;=', (context_today()).strftime('%Y-%m-01')),
+                                 ('inspection_date', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Responsable" name="group_inspector" context="{'group_by': 'inspector_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Proveedor" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Fecha de Control" name="group_date" context="{'group_by': 'inspection_date:month'}"/>
+                    <filter string="Compañía" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Kanban de Control de Calidad -->
+    <record id="view_stock_picking_quality_inspection_kanban" model="ir.ui.view">
+        <field name="name">stock.picking.quality.inspection.kanban</field>
+        <field name="model">stock.picking.quality.inspection</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="picking_id"/>
+                <field name="inspector_id"/>
+                <field name="inspection_date"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="text-muted">
+                                        <field name="picking_id"/>
+                                    </div>
+                                </div>
+                                <span t-attf-class="badge rounded-pill #{record.state.raw_value === 'approved' ? 'text-bg-success' : 'text-bg-danger'}">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>Responsable: <field name="inspector_id"/></div>
+                                <div>Fecha: <field name="inspection_date"/></div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Acción de ventana -->
+    <record id="action_stock_picking_quality_inspection" model="ir.actions.act_window">
+        <field name="name">Controles de Calidad</field>
+        <field name="res_model">stock.picking.quality.inspection</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear el primer control de calidad
+            </p>
+            <p>
+                Los controles de calidad permiten registrar los hallazgos de las recepciones
+                y aprobar o desaprobar el ingreso. Las recepciones solo pueden validarse
+                si tienen un control de calidad aprobado.
+            </p>
+        </field>
+    </record>
+
+    <!-- Extensión de la vista de Stock Picking (Recepciones) -->
+    <record id="view_picking_form_quality_inspection" model="ir.ui.view">
+        <field name="name">stock.picking.form.quality.inspection</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar Smart Button para ver controles -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_quality_inspections"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-search"
+                        invisible="picking_type_code != 'incoming'"
+                        groups="stock.group_stock_user">
+                    <field name="quality_inspection_count" widget="statinfo" string="Controles"/>
+                </button>
+            </xpath>
+
+            <!-- Agregar botón para crear control de calidad en el header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_quality_control"
+                        string="Control de Calidad"
+                        type="object"
+                        class="btn-primary"
+                        invisible="picking_type_code != 'incoming' or state == 'done'"
+                        groups="stock.group_stock_user"/>
+            </xpath>
+
+            <!-- Agregar campo oculto -->
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="quality_inspection_approved" invisible="1"/>
+            </xpath>
+
+            <!-- Agregar lista de controles en una página -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Control de Calidad" name="quality_control" invisible="picking_type_code != 'incoming'">
+                    <field name="quality_inspection_ids" nolabel="1">
+                        <list string="Controles de Calidad"
+                              decoration-success="state == 'approved'"
+                              decoration-danger="state == 'rejected'"
+                              create="false">
+                            <field name="name"/>
+                            <field name="inspector_id" string="Responsable"/>
+                            <field name="inspection_date" string="Fecha"/>
+                            <field name="findings" string="Hallazgos"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'approved'"
+                                   decoration-danger="state == 'rejected'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Menú en Inventario/Control de Calidad -->
+    <menuitem id="menu_quality_control_root"
+              name="Control de Calidad"
+              parent="stock.menu_stock_root"
+              sequence="50"/>
+
+    <menuitem id="menu_stock_picking_quality_inspection"
+              name="Controles de Recepción"
+              parent="menu_quality_control_root"
+              action="action_stock_picking_quality_inspection"
+              sequence="10"/>
+
+    <!-- También agregarlo en Manufacturing -->
+    <menuitem id="menu_stock_picking_quality_inspection_mrp"
+              name="Controles de Recepción"
+              parent="peruanita_mrp.menu_product_lot_quality_root"
+              action="action_stock_picking_quality_inspection"
+              sequence="30"/>
+
+</odoo>

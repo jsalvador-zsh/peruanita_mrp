@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Form del Wizard de Control de Calidad -->
+    <record id="view_stock_picking_quality_wizard_form" model="ir.ui.view">
+        <field name="name">stock.picking.quality.wizard.form</field>
+        <field name="model">stock.picking.quality.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Control de Calidad">
+                <group>
+                    <field name="picking_id" invisible="1"/>
+                    <field name="findings" nolabel="1" placeholder="Describa lo encontrado durante el control de calidad..." widget="text"/>
+                </group>
+                <group>
+                    <field name="state" widget="radio" options="{'horizontal': true}"/>
+                </group>
+                <footer>
+                    <button string="Guardar" name="action_confirm" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

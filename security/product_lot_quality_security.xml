@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Categoría de Seguridad -->
+        <record id="module_category_quality_certificates" model="ir.module.category">
+            <field name="name">Certificados de Calidad</field>
+            <field name="description">Gestión de certificados de calidad de lotes</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Grupo: Notificaciones de Vencimiento de Certificados -->
+        <record id="group_quality_certificate_notifications" model="res.groups">
+            <field name="name">Notificar Vencimiento de Certificados/Lotes</field>
+            <field name="category_id" ref="module_category_quality_certificates"/>
+            <field name="comment">Los usuarios con este grupo recibirán notificaciones automáticas cuando los certificados de calidad estén por vencer o hayan vencido.</field>
+            <field name="implied_ids" eval="[(4, ref('mrp.group_mrp_manager'))]"/>
+        </record>
+
+    </data>
+</odoo>

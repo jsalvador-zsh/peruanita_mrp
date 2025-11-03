@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Cron Job para verificar certificados de calidad por vencer -->
+    <record id="ir_cron_check_expiring_certificates" model="ir.cron">
+        <field name="name">Verificar Certificados de Calidad por Vencer</field>
+        <field name="model_id" ref="model_product_lot_quality"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_expiring_certificates()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+        <field name="priority">1</field>
+    </record>
+</odoo>
